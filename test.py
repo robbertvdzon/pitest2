@@ -68,6 +68,8 @@ try:
         mylcd.lcd_clear()
         mylcd.lcd_display_string(str(counter), 1)
         mylcd.lcd_display_string('{2:>6}{3:>6}'.format(*values), 2)
+        mylcd.lcd_display_string("menu1", 3)
+        mylcd.lcd_display_string("menu2", 4)
         # Pause for half a second.
         sleep(0.5)
 except KeyboardInterrupt: # Ctrl-C to terminate the program

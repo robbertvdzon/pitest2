@@ -7,6 +7,7 @@ mylcd = I2C_LCD_driver.lcd()
 mylcd.lcd_display_string("Hello World4!", 1)
 adc = Adafruit_ADS1x15.ADS1015()
 GAIN = 1
+counter = 1
 
 # start code voor encoder
 counter = 10  # starting point for the running directional counter
@@ -14,6 +15,7 @@ Enc_A = 23  # Encoder input A: input GPIO 23 (active high)
 Enc_B = 24  # Encoder input B: input GPIO 24 (active high)
 
 def initEncoder():
+    global counter
     print "Rotary Encoder Test Program"
     GPIO.setwarnings(True)
     GPIO.setmode(GPIO.BCM)
@@ -31,7 +33,7 @@ def rotation_decode(Enc_A):
     if (Switch_A == 1) and (Switch_B == 0) : # A then B ->
         counter += 1
         print "direction -> ", counter
-        mylcd.lcd_display_string(str(counter), 1)
+        # mylcd.lcd_display_string(str(counter), 1)
         # at this point, B may still need to go high, wait for it
         while Switch_B == 0:
             Switch_B = GPIO.input(Enc_B)
@@ -42,7 +44,7 @@ def rotation_decode(Enc_A):
     elif (Switch_A == 1) and (Switch_B == 1): # B then A <-
         counter -= 1
         print "direction <- ", counter
-        mylcd.lcd_display_string(str(counter), 1)
+        # mylcd.lcd_display_string(str(counter), 1)
         # A is already high, wait for A to drop to end the click cycle
         while Switch_A == 1:
             Switch_A = GPIO.input(Enc_A)
@@ -63,7 +65,8 @@ try:
         for i in range(4):
             values[i] = adc.read_adc(i, gain=GAIN)
         print('{2:>4} {3:>4}'.format(*values))
-        # mylcd.lcd_clear()
+        mylcd.lcd_clear()
+        mylcd.lcd_display_string(str(counter), 1)
         mylcd.lcd_display_string('{2:>6}{3:>6}'.format(*values), 2)
         # Pause for half a second.
         sleep(0.5)

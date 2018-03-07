@@ -3,7 +3,6 @@ import I2C_LCD_driver
 import Adafruit_ADS1x15
 import RPi.GPIO as GPIO
 from time import *
-from eventbus import *
 
 KlepSensorPinOpen = 22
 KlepSensorPinClosed = 27

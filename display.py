@@ -1,22 +1,23 @@
 import I2C_LCD_driver
-# import Adafruit_ADS1x15
-# import RPi.GPIO as GPIO
-# from time import *
-from eventbus import *
 
 class Display:
+
+    def __init__(self):
+        self.initDisplay()
 
     def onMessage(self, event, message):
         if (event=="display"):
             self.writeDisplay(message,2)
         print 'got message in display: '+event+' '+message
 
+    def display(self, text, regelnr):
+        self.writeDisplay(text,regelnr)
+
+    def clear(self):
+        self.clearDisplay()
 
     def initDisplay(self):
         global mylcd
-        global bus
-        bus = getEventbus()
-        bus.register(self)
         mylcd = I2C_LCD_driver.lcd()
         mylcd.lcd_display_string("Smoker test", 1)
         return
@@ -25,6 +26,9 @@ class Display:
         global mylcd
         mylcd.lcd_display_string(text, line)
 
-def initDisplay():
-    display = Display()
-    display.initDisplay()
+    def clearDisplay(self):
+        global mylcd
+        mylcd.lcd_display_string("                    ", 1)
+        mylcd.lcd_display_string("                    ", 2)
+        mylcd.lcd_display_string("                    ", 3)
+        mylcd.lcd_display_string("                    ", 4)

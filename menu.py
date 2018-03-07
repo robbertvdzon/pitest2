@@ -1,5 +1,4 @@
 from display import *
-from eventbus import *
 from time import *
 
 class Menu:

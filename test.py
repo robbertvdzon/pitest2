@@ -11,12 +11,14 @@ counter = 1
 
 # start code voor encoder
 counter = 10  # starting point for the running directional counter
-Enc_A = 23  # Encoder input A: input GPIO 23 (active high)
-Enc_B = 24  # Encoder input B: input GPIO 24 (active high)
+Enc_A = 23  # Encoder input A: input GPIO 23 (active high) // 23 -> 13
+Enc_B = 24  # Encoder input B: input GPIO 24 (active high) // 24 -> 19
+KlepSensorPinOpen = 22
+KlepSensorPinClosed = 27
 
 def initEncoder():
     global counter
-    print "Rotary Encoder Test Program"
+    print "Rotary Encoder Test Program3"
     GPIO.setwarnings(True)
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(Enc_A, GPIO.IN) # pull-ups are too weak, they introduce noise
@@ -24,12 +26,102 @@ def initEncoder():
     GPIO.add_event_detect(Enc_A, GPIO.RISING, callback=rotation_decode, bouncetime=2) # bouncetime in mSec
     return
 
+def initKlepSensor():
+    print "Klep sensor init"
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(KlepSensorPinOpen, GPIO.IN) # pull-ups are too weak, they introduce noise
+    GPIO.setup(KlepSensorPinClosed, GPIO.IN)
+    GPIO.add_event_detect(KlepSensorPinOpen, GPIO.FALLING, callback=klepOpenDetected, bouncetime=50) # bouncetime in mSec
+    GPIO.add_event_detect(KlepSensorPinClosed, GPIO.FALLING, callback=klepClosedDetected, bouncetime=50) # bouncetime in mSec
+    # sleep(10)
+    return
+
+def initKnopSensor():
+    print "Knop init2"
+    GPIO.setmode(GPIO.BCM)
+    # GPIO.setup(6, GPIO.OUT)
+    # GPIO.output(26, 0)
+    GPIO.setup(6, GPIO.IN) # pull-ups are too weak, they introduce noise
+    GPIO.add_event_detect(6, GPIO.RISING, callback=knopPressedDetected, bouncetime=1000) # bouncetime in mSec
+    return
+
+def testPWM():
+    GPIO.setmode(GPIO.BCM)  # choose BCM or BOARD numbering schemes. I use BCM
+    GPIO.setup(12, GPIO.OUT)# set GPIO 25 as an output. You can use any GPIO port
+    # GPIO.output(25, GPIO.LOW)
+    # print('low')
+    # sleep(5)
+    # GPIO.output(25, GPIO.HIGH)
+    # print('high')
+    # sleep(5)
+
+
+    p = GPIO.PWM(12, 50)    # create an object p for PWM on port 25 at 50 Hertz
+    # you can have more than one of these, but they need
+    # different names for each port
+    # e.g. p1, p2, motor, servo1 etc.
+    print('init')
+    sleep(5)
+    print('20')
+    p.start(20)             # start the PWM on 50 percent duty cycle, duty cycle value can be 0.0 to 100.0%, floats are OK
+    sleep(5)
+    print('90')
+    p.start(90)             # start the PWM on 50 percent duty cycle, duty cycle value can be 0.0 to 100.0%, floats are OK
+    sleep(5)
+    # print('70')
+    # p.ChangeDutyCycle(70)   # change the duty cycle to 90%
+    # sleep(5)
+    # print('100')
+    # p.ChangeDutyCycle(100)  # change the frequency to 100 Hz (floats also work)  e.g. 100.5, 5.2
+    # sleep(5)
+    # p.stop()                # stop the PWM output
+    # GPIO.cleanup()          # when your program exits, tidy up after yourself
+    return
+
+def testKlep():
+    GPIO.setmode(GPIO.BCM)  # choose BCM or BOARD numbering schemes. I use BCM
+    GPIO.setup(17, GPIO.OUT)# set GPIO 25 as an output. You can use any GPIO port
+    GPIO.setup(6, GPIO.OUT)# set GPIO 25 as an output. You can use any GPIO port
+
+    p = GPIO.PWM(17, 50)    # create an object p for PWM on port 25 at 50 Hertz
+    p.start(100)
+
+    # GPIO.output(17, GPIO.HIGH)
+    GPIO.output(6, GPIO.LOW)
+    sleep(4)
+    # GPIO.output(17, GPIO.HIGH)
+    GPIO.output(6, GPIO.HIGH)
+    sleep(1)
+    # GPIO.output(17, GPIO.HIGH)
+    p.start(25)
+    GPIO.output(6, GPIO.LOW)
+    sleep(2)
+    # GPIO.output(17, GPIO.HIGH)
+    GPIO.output(6, GPIO.HIGH)
+    sleep(2)
+    # GPIO.output(17, GPIO.LOW)
+    GPIO.output(6, GPIO.LOW)
+    return
+
+def knopPressedDetected(param):
+    print "Knop pressed:"
+    return
+
+def klepOpenDetected(param):
+    print "open:"
+    return
+
+def klepClosedDetected(param):
+    print "closed:"
+    return
 
 def rotation_decode(Enc_A):
     global counter
+    print "decode"
     sleep(0.002) # extra 2 mSec de-bounce time
     Switch_A = GPIO.input(Enc_A)
     Switch_B = GPIO.input(Enc_B)
+    print str(Switch_B)
     if (Switch_A == 1) and (Switch_B == 0) : # A then B ->
         counter += 1
         print "direction -> ", counter
@@ -60,6 +152,10 @@ print('-' * 37)
 # Main loop.
 try:
     initEncoder()
+    # initKlepSensor()
+    initKnopSensor()
+    # testKlep()
+    # testPWM()
     while True:
         values = [0]*4
         for i in range(4):
